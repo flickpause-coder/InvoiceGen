@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice System Test Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .test-pass { color: #10b981; }
+        .test-fail { color: #ef4444; }
+        .test-pending { color: #f59e0b; }
+        .test-result {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+        .test-pass-bg { background-color: #d1fae5; }
+        .test-fail-bg { background-color: #fee2e2; }
+        .test-pending-bg { background-color: #fef3c7; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">
+                <i class="fas fa-vial mr-3 text-blue-600"></i>
+                Invoice System Test Suite
+            </h1>
+
+            <!-- Test Controls -->
+            <div class="mb-8 flex gap-4">
+                <button onclick="runAllTests()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-play mr-2"></i>Run All Tests
+                </button>
+                <button onclick="clearResults()" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-trash mr-2"></i>Clear Results
+                </button>
+                <button onclick="exportResults()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-download mr-2"></i>Export Results
+                </button>
+            </div>
+
+            <!-- Test Summary -->
+            <div id="test-summary" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="text-blue-600 text-sm font-medium">Total Tests</div>
+                    <div id="total-tests" class="text-2xl font-bold text-blue-900">0</div>
+                </div>
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="text-green-600 text-sm font-medium">Passed</div>
+                    <div id="passed-tests" class="text-2xl font-bold text-green-900">0</div>
+                </div>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="text-red-600 text-sm font-medium">Failed</div>
+                    <div id="failed-tests" class="text-2xl font-bold text-red-900">0</div>
+                </div>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div class="text-yellow-600 text-sm font-medium">Pending</div>
+                    <div id="pending-tests" class="text-2xl font-bold text-yellow-900">0</div>
+                </div>
+            </div>
+
+            <!-- Test Results -->
+            <div class="space-y-6">
+                <!-- Authentication Tests -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-shield-alt mr-2 text-blue-600"></i>
+                        Authentication Tests
+                    </h2>
+                    <div id="auth-tests" class="space-y-2"></div>
+                </div>
+
+                <!-- Invoice Creation Tests -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-plus-circle mr-2 text-green-600"></i>
+                        Invoice Creation Tests
+                    </h2>
+                    <div id="creation-tests" class="space-y-2"></div>
+                </div>
+
+                <!-- Invoice Management Tests -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-cogs mr-2 text-purple-600"></i>
+                        Invoice Management Tests
+                    </h2>
+                    <div id="management-tests" class="space-y-2"></div>
+                </div>
+
+                <!-- Import/Export Tests -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-exchange-alt mr-2 text-orange-600"></i>
+                        Import/Export Tests
+                    </h2>
+                    <div id="import-export-tests" class="space-y-2"></div>
+                </div>
+
+                <!-- Design System Tests -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-palette mr-2 text-pink-600"></i>
+                        Design System Tests
+                    </h2>
+                    <div id="design-tests" class="space-y-2"></div>
+                </div>
+
+                <!-- Integration Tests -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-link mr-2 text-indigo-600"></i>
+                        Integration Tests
+                    </h2>
+                    <div id="integration-tests" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include all necessary scripts -->
+    <script src="auth-improved.js"></script>
+    <script src="invoice-automation.js"></script>
+    <script src="invoice-management.js"></script>
+
+    <script>
+        // Test Suite Implementation
+        class TestSuite {
+            constructor() {
+                this.tests = [];
+                this.results = {
+                    total: 0,
+                    passed: 0,
+                    failed: 0,
+                    pending: 0
+                };
+            }
+
+            addTest(category, name, testFunction) {
+                this.tests.push({
+                    category,
+                    name,
+                    testFunction,
+                    status: 'pending',
+                    message: '',
+                    duration: 0
+                });
+            }
+
+            async runTest(test) {
+                const startTime = performance.now();
+                try {
+                    await test.testFunction();
+                    test.status = 'passed';
+                    test.message = 'Test passed successfully';
+                } catch (error) {
+                    test.status = 'failed';
+                    test.message = error.message || 'Test failed';
+                }
+                test.duration = performance.now() - startTime;
+                this.updateResults();
+                this.displayTestResult(test);
+            }
+
+            async runAllTests() {
+                this.clearResults();
+                
+                for (const test of this.tests) {
+                    await this.runTest(test);
+                    // Small delay to show progress
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                this.displaySummary();
+            }
+
+            updateResults() {
+                this.results.total = this.tests.length;
+                this.results.passed = this.tests.filter(t => t.status === 'passed').length;
+                this.results.failed = this.tests.filter(t => t.status === 'failed').length;
+                this.results.pending = this.tests.filter(t => t.status === 'pending').length;
+
+                document.getElementById('total-tests').textContent = this.results.total;
+                document.getElementById('passed-tests').textContent = this.results.passed;
+                document.getElementById('failed-tests').textContent = this.results.failed;
+                document.getElementById('pending-tests').textContent = this.results.pending;
+            }
+
+            displayTestResult(test) {
+                const categoryElement = document.getElementById(this.getCategoryElementId(test.category));
+                if (!categoryElement) return;
+
+                const resultElement = document.createElement('div');
+                resultElement.className = `test-result test-${test.status}-bg`;
+                
+                const icon = test.status === 'passed' ? 'fa-check' : 
+                           test.status === 'failed' ? 'fa-times' : 'fa-clock';
+                
+                resultElement.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas ${icon} mr-2 test-${test.status}"></i>
+                            <span class="font-medium">${test.name}</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            ${test.duration.toFixed(2)}ms
+                        </div>
+                    </div>
+                    ${test.message ? `<div class="text-sm mt-1 text-gray-600">${test.message}</div>` : ''}
+                `;
+
+                categoryElement.appendChild(resultElement);
+            }
+
+            getCategoryElementId(category) {
+                const categoryMap = {
+                    'Authentication': 'auth-tests',
+                    'Invoice Creation': 'creation-tests',
+                    'Invoice Management': 'management-tests',
+                    'Import/Export': 'import-export-tests',
+                    'Design System': 'design-tests',
+                    'Integration': 'integration-tests'
+                };
+                return categoryMap[category];
+            }
+
+            clearResults() {
+                const categories = ['auth-tests', 'creation-tests', 'management-tests', 
+                                 'import-export-tests', 'design-tests', 'integration-tests'];
+                
+                categories.forEach(categoryId => {
+                    const element = document.getElementById(categoryId);
+                    if (element) element.innerHTML = '';
+                });
+
+                this.tests.forEach(test => {
+                    test.status = 'pending';
+                    test.message = '';
+                    test.duration = 0;
+                });
+
+                this.updateResults();
+            }
+
+            displaySummary() {
+                const passRate = ((this.results.passed / this.results.total) * 100).toFixed(1);
+                console.log(`Test Summary: ${this.results.passed}/${this.results.total} passed (${passRate}%)`);
+            }
+
+            exportResults() {
+                const results = {
+                    timestamp: new Date().toISOString(),
+                    summary: this.results,
+                    tests: this.tests.map(test => ({
+                        category: test.category,
+                        name: test.name,
+                        status: test.status,
+                        message: test.message,
+                        duration: test.duration
+                    }))
+                };
+
+                const dataStr = JSON.stringify(results, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `invoice-system-test-results-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // Initialize test suite
+        const testSuite = new TestSuite();
+
+        // Authentication Tests
+        testSuite.addTest('Authentication', 'Auth Service Initialization', async () => {
+            if (!window.ImprovedAuthService) {
+                throw new Error('ImprovedAuthService not found');
+            }
+            const authService = new ImprovedAuthService();
+            if (!authService) {
+                throw new Error('Failed to initialize auth service');
+            }
+        });
+
+        testSuite.addTest('Authentication', 'User Authentication', async () => {
+            const authService = new ImprovedAuthService();
+            authService.bypassLogin();
+            if (!authService.isAuthenticated()) {
+                throw new Error('User authentication failed');
+            }
+        });
+
+        testSuite.addTest('Authentication', 'User Data Retrieval', async () => {
+            const authService = new ImprovedAuthService();
+            const user = authService.getCurrentUser();
+            if (!user || !user.email) {
+                throw new Error('Failed to retrieve user data');
+            }
+        });
+
+        // Invoice Creation Tests
+        testSuite.addTest('Invoice Creation', 'Invoice Automation Initialization', async () => {
+            if (!window.InvoiceAutomation) {
+                throw new Error('InvoiceAutomation class not found');
+            }
+            const automation = new InvoiceAutomation();
+            if (!automation) {
+                throw new Error('Failed to initialize invoice automation');
+            }
+        });
+
+        testSuite.addTest('Invoice Creation', 'Create Basic Invoice', async () => {
+            const automation = new InvoiceAutomation();
+            const invoiceData = {
+                clientId: 'test-client-1',
+                items: [
+                    { description: 'Test Service', quantity: 1, rate: 100 }
+                ],
+                notes: 'Test invoice'
+            };
+            
+            const invoice = automation.createInvoice(invoiceData);
+            if (!invoice || !invoice.id || !invoice.number) {
+                throw new Error('Failed to create basic invoice');
+            }
+        });
+
+        testSuite.addTest('Invoice Creation', 'Invoice Number Generation', async () => {
+            const automation = new InvoiceAutomation();
+            const number1 = automation.generateInvoiceNumber();
+            const number2 = automation.generateInvoiceNumber();
+            
+            if (!number1 || !number2 || number1 === number2) {
+                throw new Error('Invoice number generation failed');
+            }
+        });
+
+        testSuite.addTest('Invoice Creation', 'Invoice Total Calculation', async () => {
+            const automation = new InvoiceAutomation();
+            const invoice = {
+                items: [
+                    { quantity: 2, rate: 50 },
+                    { quantity: 1, rate: 100 }
+                ],
+                taxRate: 0.1
+            };
+            
+            automation.calculateInvoiceTotals(invoice);
+            
+            if (invoice.subtotal !== 200 || invoice.taxAmount !== 20 || invoice.total !== 220) {
+                throw new Error('Invoice calculation incorrect');
+            }
+        });
+
+        // Invoice Management Tests
+        testSuite.addTest('Invoice Management', 'Update Invoice', async () => {
+            const automation = new InvoiceAutomation();
+            const invoice = automation.createInvoice({
+                items: [{ description: 'Test', quantity: 1, rate: 100 }]
+            });
+            
+            const updated = automation.updateInvoice(invoice.id, {
+                notes: 'Updated notes'
+            });
+            
+            if (!updated || updated.notes !== 'Updated notes') {
+                throw new Error('Failed to update invoice');
+            }
+        });
+
+        testSuite.addTest('Invoice Management', 'Delete Invoice', async () => {
+            const automation = new InvoiceAutomation();
+            const invoice = automation.createInvoice({
+                items: [{ description: 'Test', quantity: 1, rate: 100 }]
+            });
+            
+            const deleted = automation.deleteInvoice(invoice.id);
+            const found = automation.getInvoice(invoice.id);
+            
+            if (!deleted || found) {
+                throw new Error('Failed to delete invoice');
+            }
+        });
+
+        testSuite.addTest('Invoice Management', 'Status Update', async () => {
+            const automation = new InvoiceAutomation();
+            const invoice = automation.createInvoice({
+                items: [{ description: 'Test', quantity: 1, rate: 100 }]
+            });
+            
+            const updated = automation.updateInvoiceStatus(invoice.id, 'sent');
+            
+            if (!updated || updated.status !== 'sent') {
+                throw new Error('Failed to update invoice status');
+            }
+        });
+
+        // Import/Export Tests
+        testSuite.addTest('Import/Export', 'Export to JSON', async () => {
+            const automation = new InvoiceAutomation();
+            automation.createInvoice({
+                items: [{ description: 'Test Export', quantity: 1, rate: 100 }]
+            });
+            
+            const result = automation.exportInvoices('json');
+            
+            if (!result.success) {
+                throw new Error('Failed to export invoices to JSON');
+            }
+        });
+
+        testSuite.addTest('Import/Export', 'Export to CSV', async () => {
+            const automation = new InvoiceAutomation();
+            const result = automation.exportInvoices('csv');
+            
+            if (!result.success) {
+                throw new Error('Failed to export invoices to CSV');
+            }
+        });
+
+        testSuite.addTest('Import/Export', 'CSV Conversion', async () => {
+            const automation = new InvoiceAutomation();
+            const testInvoices = [
+                {
+                    id: 'test1',
+                    number: 'INV-001',
+                    total: 100,
+                    status: 'paid',
+                    notes: 'Test note'
+                }
+            ];
+            
+            const csv = automation.convertToCSV(testInvoices);
+            
+            if (!csv.includes('INV-001') || !csv.includes('Test note')) {
+                throw new Error('CSV conversion failed');
+            }
+        });
+
+        // Design System Tests
+        testSuite.addTest('Design System', 'Design Settings Storage', async () => {
+            const designSettings = {
+                template: 'professional',
+                color: 'blue',
+                companyName: 'Test Company'
+            };
+            
+            localStorage.setItem('invoiceDesign', JSON.stringify(designSettings));
+            const retrieved = JSON.parse(localStorage.getItem('invoiceDesign'));
+            
+            if (!retrieved || retrieved.template !== 'professional') {
+                throw new Error('Design settings storage failed');
+            }
+        });
+
+        testSuite.addTest('Design System', 'Template Application', async () => {
+            const automation = new InvoiceAutomation();
+            const design = automation.getDefaultDesign();
+            
+            if (!design || !design.template || !design.color) {
+                throw new Error('Template application failed');
+            }
+        });
+
+        // Integration Tests
+        testSuite.addTest('Integration', 'Full Invoice Workflow', async () => {
+            // Clear existing data
+            localStorage.removeItem('invoices');
+            localStorage.removeItem('clients');
+            
+            // Initialize services
+            const authService = new ImprovedAuthService();
+            authService.bypassLogin();
+            
+            const automation = new InvoiceAutomation();
+            
+            // Create client
+            const clients = [{
+                id: 'client-1',
+                name: 'Test Client',
+                email: 'test@client.com'
+            }];
+            localStorage.setItem('clients', JSON.stringify(clients));
+            
+            // Create invoice
+            const invoice = automation.createInvoice({
+                clientId: 'client-1',
+                items: [
+                    { description: 'Consulting', quantity: 10, rate: 150 }
+                ]
+            });
+            
+            // Update status
+            automation.updateInvoiceStatus(invoice.id, 'sent');
+            
+            // Verify workflow
+            const finalInvoice = automation.getInvoice(invoice.id);
+            if (!finalInvoice || finalInvoice.status !== 'sent' || finalInvoice.total !== 1650) {
+                throw new Error('Full workflow integration failed');
+            }
+        });
+
+        testSuite.addTest('Integration', 'Statistics Calculation', async () => {
+            const automation = new InvoiceAutomation();
+            const stats = automation.getInvoiceStatistics();
+            
+            if (typeof stats.total !== 'number' || typeof stats.totalRevenue !== 'number') {
+                throw new Error('Statistics calculation failed');
+            }
+        });
+
+        // Global functions for UI
+        function runAllTests() {
+            testSuite.runAllTests();
+        }
+
+        function clearResults() {
+            testSuite.clearResults();
+        }
+
+        function exportResults() {
+            testSuite.exportResults();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            testSuite.updateResults();
+            console.log('Test suite initialized with', testSuite.tests.length, 'tests');
+        });
+    </script>
+</body>
+</html>
