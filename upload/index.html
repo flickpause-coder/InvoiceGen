@@ -7,473 +7,194 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .glass-effect {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .hover-lift {
-            transition: all 0.3s ease;
-        }
-        .hover-lift:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        }
-        .stat-card {
-            background: linear-gradient(145deg, #ffffff, #f8fafc);
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
-        }
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        }
-        .invoice-row {
-            transition: all 0.2s ease;
-        }
-        .invoice-row:hover {
-            background-color: #f8fafc;
-            transform: translateX(4px);
-        }
-        .filter-btn.active {
-            background: #3b82f6;
-            color: white;
-        }
-        .user-menu {
-            transform: translateY(-10px);
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.2s ease;
-        }
-        .user-menu.show {
-            transform: translateY(0);
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .subscription-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-        .role-badge {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <h1 class="text-2xl font-bold text-gray-900">InvoiceGen</h1>
+<body>
+    <div data-page-content class="space-y-10">
+        <section class="grid gap-6 lg:grid-cols-4 md:grid-cols-2">
+            <article class="stat-card glass-panel p-6 rounded-2xl border border-slate-200/60 bg-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500">Total Revenue</p>
+                        <h2 id="total-revenue" class="text-3xl font-semibold metric-number mt-2">$0</h2>
+                        <p class="text-xs text-emerald-500 mt-1 flex items-center space-x-1">
+                            <i class="fas fa-arrow-up text-[10px]"></i>
+                            <span>12% growth vs last month</span>
+                        </p>
                     </div>
+                    <span class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <i class="fas fa-coins text-lg"></i>
+                    </span>
                 </div>
-                
-                <!-- Navigation Links -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="nav-link text-blue-600 font-medium">Dashboard</a>
-                    <a href="invoices.html" class="nav-link text-gray-600 hover:text-gray-900">Invoices</a>
-                    <a href="clients.html" class="nav-link text-gray-600 hover:text-gray-900">Clients</a>
-                    <a href="invoice-design.html" class="nav-link text-gray-600 hover:text-gray-900">Invoice Design</a>
-                    <a href="settings.html" class="nav-link text-gray-600 hover:text-gray-900">Settings</a>
+            </article>
+            <article class="stat-card glass-panel p-6 rounded-2xl border border-slate-200/60 bg-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500">Pending Amount</p>
+                        <h2 id="pending-amount" class="text-3xl font-semibold text-slate-900 mt-2">$0</h2>
+                        <p class="text-xs text-amber-500 mt-1 flex items-center space-x-1">
+                            <i class="fas fa-hourglass-half text-[10px]"></i>
+                            <span>Awaiting client approval</span>
+                        </p>
+                    </div>
+                    <span class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
+                        <i class="fas fa-clock text-lg"></i>
+                    </span>
                 </div>
+            </article>
+            <article class="stat-card glass-panel p-6 rounded-2xl border border-slate-200/60 bg-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500">Overdue Amount</p>
+                        <h2 id="overdue-amount" class="text-3xl font-semibold text-slate-900 mt-2">$0</h2>
+                        <p class="text-xs text-rose-500 mt-1 flex items-center space-x-1">
+                            <i class="fas fa-bell text-[10px]"></i>
+                            <span>Send reminders today</span>
+                        </p>
+                    </div>
+                    <span class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center">
+                        <i class="fas fa-triangle-exclamation text-lg"></i>
+                    </span>
+                </div>
+            </article>
+            <article class="stat-card glass-panel p-6 rounded-2xl border border-slate-200/60 bg-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500">Total Clients</p>
+                        <h2 id="total-clients" class="text-3xl font-semibold text-slate-900 mt-2">0</h2>
+                        <p class="text-xs text-blue-500 mt-1 flex items-center space-x-1">
+                            <i class="fas fa-user-plus text-[10px]"></i>
+                            <span>4 new this week</span>
+                        </p>
+                    </div>
+                    <span class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center">
+                        <i class="fas fa-users text-lg"></i>
+                    </span>
+                </div>
+            </article>
+        </section>
 
-                <!-- User Menu -->
-                <div class="relative">
-                    <button id="user-menu-button" class="flex items-center space-x-3 text-gray-700 hover:text-gray-900 focus:outline-none">
-                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <span id="user-initials" class="text-white text-sm font-medium">JD</span>
-                        </div>
-                        <div class="hidden md:block text-left">
-                            <div id="user-name" class="text-sm font-medium">John Doe</div>
-                            <div id="user-role" class="text-xs text-gray-500">Admin</div>
-                        </div>
-                        <i class="fas fa-chevron-down text-xs"></i>
-                    </button>
-
-                    <!-- Dropdown Menu -->
-                    <div id="user-menu" class="user-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                        <div class="px-4 py-2 border-b border-gray-200">
-                            <div class="text-sm font-medium text-gray-900" id="dropdown-user-name">John Doe</div>
-                            <div class="text-xs text-gray-500" id="dropdown-user-email">john@example.com</div>
-                        </div>
-                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-cog mr-2"></i>Settings
-                        </a>
-                        <a href="subscription.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 bg-blue-50 text-blue-700">
-                            <i class="fas fa-credit-card mr-2"></i>Billing
-                        </a>
-                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+        <section class="grid gap-6 xl:grid-cols-5">
+            <div class="glass-panel rounded-2xl p-6 xl:col-span-3 bg-white border border-slate-200/60">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-900">Revenue Overview</h3>
+                        <p class="text-sm text-slate-500">Monitor performance across custom periods</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm">
+                        <label class="flex items-center space-x-2 text-slate-500 text-xs uppercase tracking-wide">
+                            <input type="checkbox" id="auto-refresh-toggle" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                            <span>Auto refresh</span>
+                        </label>
+                        <button id="manual-refresh" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 hover:border-blue-400 hover:text-blue-600 transition-all">
+                            <i class="fas fa-rotate mr-2 text-sm"></i>Refresh
                         </button>
+                        <select id="period-selector" class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 focus:border-blue-500 focus:ring-blue-200">
+                            <option value="this_month">This Month</option>
+                            <option value="last_month">Last Month</option>
+                            <option value="quarter">Last 90 days</option>
+                            <option value="year">Year to date</option>
+                        </select>
                     </div>
                 </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-900">Dashboard</h2>
-            <p class="text-gray-600 mt-2">Welcome back! Here's what's happening with your business today.</p>
-        </div>
-
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Revenue -->
-            <div class="stat-card rounded-xl p-6" onclick="filterInvoices('all')">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-dollar-sign text-green-600"></i>
-                        </div>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
-                            <dd class="text-lg font-medium text-gray-900" id="total-revenue">$0</dd>
-                        </dl>
-                    </div>
-                </div>
+                <div id="revenue-chart" class="chart-container mt-6 h-[320px]"></div>
             </div>
 
-            <!-- Pending Invoices -->
-            <div class="stat-card rounded-xl p-6" onclick="filterInvoices('sent')">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-clock text-blue-600"></i>
+            <div class="space-y-6 xl:col-span-2">
+                <div class="glass-panel rounded-2xl p-6 bg-white border border-slate-200/60">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-900">Client Revenue Split</h3>
+                            <p class="text-sm text-slate-500">Top-performing client segments</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <button class="chart-type-btn px-3 py-1 rounded-full bg-blue-50 text-blue-600" data-chart-type="revenue">Revenue</button>
+                            <button class="chart-type-btn px-3 py-1 rounded-full text-slate-500 hover:bg-slate-100" data-chart-type="client">Clients</button>
                         </div>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Pending</dt>
-                            <dd class="text-lg font-medium text-gray-900" id="pending-amount">$0</dd>
-                        </dl>
+                    <div id="client-chart" class="mt-6 h-[260px]"></div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-6 bg-white border border-slate-200/60">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-900">Invoice Status</h3>
+                            <p class="text-sm text-slate-500">Stay ahead with proactive alerts</p>
+                        </div>
+                        <span class="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-600">Updated 2m ago</span>
                     </div>
+                    <div id="status-chart" class="mt-6 h-[200px]"></div>
                 </div>
             </div>
+        </section>
 
-            <!-- Overdue Invoices -->
-            <div class="stat-card rounded-xl p-6" onclick="filterInvoices('overdue')">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-exclamation-triangle text-red-600"></i>
-                        </div>
+        <section class="grid gap-6 lg:grid-cols-2">
+            <div class="glass-panel rounded-2xl p-6 bg-white border border-slate-200/60">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-900">Growth Metrics</h3>
+                        <p class="text-sm text-slate-500">Track consistent expansion over time</p>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Overdue</dt>
-                            <dd class="text-lg font-medium text-gray-900" id="overdue-amount">$0</dd>
-                        </dl>
-                    </div>
+                    <span class="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-600">Quarterly view</span>
                 </div>
+                <div id="growth-chart" class="mt-6 h-[260px]"></div>
             </div>
 
-            <!-- Total Clients -->
-            <div class="stat-card rounded-xl p-6" onclick="navigateToClients()">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-users text-purple-600"></i>
-                        </div>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Total Clients</dt>
-                            <dd class="text-lg font-medium text-gray-900" id="total-clients">0</dd>
-                        </dl>
-                    </div>
+            <div class="glass-panel rounded-2xl p-6 bg-white border border-slate-200/60 space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900">Recent Activity</h3>
+                    <p class="text-sm text-slate-500">Latest milestones across your workspace</p>
+                </div>
+                <div id="recent-activity" class="space-y-4 text-sm text-slate-600"></div>
+                <div>
+                    <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Notifications</h4>
+                    <div id="notifications-list" class="space-y-3 text-sm text-slate-600"></div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Charts Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <!-- Revenue Chart -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900">Revenue Overview</h3>
-                    <div class="flex space-x-2">
-                        <button class="filter-btn active px-3 py-1 text-sm rounded-md" data-filter="all">All</button>
-                        <button class="filter-btn px-3 py-1 text-sm rounded-md" data-filter="month">This Month</button>
-                        <button class="filter-btn px-3 py-1 text-sm rounded-md" data-filter="quarter">Quarter</button>
-                    </div>
+        <section class="glass-panel rounded-2xl bg-white border border-slate-200/60">
+            <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-6 py-6 border-b border-slate-200/60">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900">Recent Invoices</h3>
+                    <p class="text-sm text-slate-500">Review the latest billing updates</p>
                 </div>
-                <div id="revenue-chart" style="height: 300px;"></div>
+                <div class="flex items-center gap-3">
+                    <button class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-all">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                    <a href="create-invoice.html" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
+                        <i class="fas fa-plus mr-2"></i>New Invoice
+                    </a>
+                </div>
+            </header>
+            <div class="overflow-x-auto scrollbar-thin">
+                <table id="recent-invoices-table" class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Invoice</th>
+                            <th class="px-6 py-3 text-left">Client</th>
+                            <th class="px-6 py-3 text-left">Amount</th>
+                            <th class="px-6 py-3 text-left">Status</th>
+                            <th class="px-6 py-3 text-left">Due</th>
+                            <th class="px-6 py-3 text-left">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-100 text-sm text-slate-600"></tbody>
+                </table>
             </div>
-
-            <!-- Client Analytics -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-6">Client Revenue Distribution</h3>
-                <div id="client-chart" style="height: 300px;"></div>
-            </div>
-        </div>
-
-        <!-- Recent Invoices and Quick Actions -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Recent Invoices -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                    <div class="p-6 border-b border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-semibold text-gray-900">Recent Invoices</h3>
-                            <a href="invoices.html" class="text-sm text-blue-600 hover:text-blue-500">View All</a>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead>
-                                    <tr>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recent-invoices-table" class="bg-white divide-y divide-gray-200">
-                                    <!-- Invoices will be populated by JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="space-y-6">
-                <!-- Quick Actions -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        <i class="fas fa-bolt mr-2"></i>
-                        Quick Actions
-                    </h3>
-                    <div class="space-y-3">
-                        <a href="create-invoice.html" class="w-full flex items-center justify-center bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-plus mr-2"></i>
-                            Create Invoice
-                        </a>
-                        <a href="clients.html" class="w-full flex items-center justify-center bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
-                            <i class="fas fa-user-plus mr-2"></i>
-                            Add Client
-                        </a>
-                        <a href="invoice-design.html" class="w-full flex items-center justify-center bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
-                            <i class="fas fa-palette mr-2"></i>
-                            Customize Design
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Subscription Info -->
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">
-                            <i class="fas fa-crown mr-2 text-blue-600"></i>
-                            Subscription
-                        </h3>
-                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">Starter</span>
-                    </div>
-                    <div class="space-y-3 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Invoices used:</span>
-                            <span class="font-medium">18/25</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Clients:</span>
-                            <span class="font-medium">12/50</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-blue-600 h-2 rounded-full" style="width: 72%"></div>
-                        </div>
-                        <a href="subscription.html" class="block text-center text-blue-600 hover:text-blue-500 text-sm font-medium">
-                            Upgrade Plan →
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Recent Activity -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        <i class="fas fa-history mr-2"></i>
-                        Recent Activity
-                    </h3>
-                    <div id="recent-activity" class="space-y-3">
-                        <!-- Activity items will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-        </div>
+        </section>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-8 mt-12">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-gray-400">© 2025 InvoiceGen. Professional invoice management for modern businesses.</p>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="auth-improved.js"></script>
-    <script src="main.js"></script>
-    <script src="dashboard-enhanced.js"></script>
-    <script src="invoice-automation.js"></script>
-    <script src="test-suite.js"></script>
     <script>
-        // Global functions
-        function logout() {
-            if (window.ImprovedAuthService) {
-                window.ImprovedAuthService.logout();
-            } else {
-                localStorage.clear();
-                window.location.href = 'login.html';
-            }
-        }
-
-        function filterInvoices(filter) {
-            const url = filter === 'all' ? 'invoices.html' : `invoices.html?filter=${filter}`;
-            window.location.href = url;
-        }
-
-        function navigateToClients() {
-            window.location.href = 'clients.html';
-        }
-
-        // User menu functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const userMenuButton = document.getElementById('user-menu-button');
-            const userMenu = document.getElementById('user-menu');
-
-            userMenuButton.addEventListener('click', function() {
-                userMenu.classList.toggle('show');
-            });
-
-            // Close menu when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
-                    userMenu.classList.remove('show');
-                }
-            });
-
-            // Update user info if authenticated
-            const authService = window.ImprovedAuthService;
-            if (authService && authService.getCurrentUser()) {
-                const user = authService.getCurrentUser();
-                document.getElementById('user-initials').textContent = 
-                    (user.firstName[0] + user.lastName[0]).toUpperCase();
-                document.getElementById('user-name').textContent = 
-                    `${user.firstName} ${user.lastName}`;
-                document.getElementById('user-role').textContent = 
-                    user.role.charAt(0).toUpperCase() + user.role.slice(1);
-                document.getElementById('dropdown-user-name').textContent = 
-                    `${user.firstName} ${user.lastName}`;
-                document.getElementById('dropdown-user-email').textContent = user.email;
-            }
-        });
-
-        // Initialize demo data for new users
-        if (window.ImprovedAuthService && window.ImprovedAuthService.getCurrentUser()) {
-            window.ImprovedAuthService.initializeDemoData();
-        }
-
-        // Load dashboard data
-        function loadDashboardData() {
-            const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
-            const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-            
-            // Update statistics
-            updateDashboardStats(invoices, clients);
-            
-            // Update recent invoices table
-            updateRecentInvoicesTable(invoices);
-        }
-
-        function updateDashboardStats(invoices, clients) {
-            const stats = {
-                totalRevenue: invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + (inv.total || 0), 0),
-                pendingAmount: invoices.filter(inv => inv.status === 'sent').reduce((sum, inv) => sum + (inv.total || 0), 0),
-                overdueAmount: invoices.filter(inv => inv.status === 'overdue').reduce((sum, inv) => sum + (inv.total || 0), 0),
-                totalClients: clients.length
-            };
-
-            document.getElementById('total-revenue').textContent = `$${stats.totalRevenue.toFixed(2)}`;
-            document.getElementById('pending-amount').textContent = `$${stats.pendingAmount.toFixed(2)}`;
-            document.getElementById('overdue-amount').textContent = `$${stats.overdueAmount.toFixed(2)}`;
-            document.getElementById('total-clients').textContent = stats.totalClients;
-        }
-
-        function updateRecentInvoicesTable(invoices) {
-            const recentInvoices = invoices.slice(-5).reverse(); // Last 5 invoices
-            const tableBody = document.getElementById('recent-invoices-table');
-            
-            if (tableBody && recentInvoices.length > 0) {
-                tableBody.innerHTML = recentInvoices.map(invoice => `
-                    <tr class="invoice-row">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${invoice.number}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${getClientName(invoice.clientId)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="status-badge status-${invoice.status}">${invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${(invoice.total || 0).toFixed(2)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button onclick="viewInvoice('${invoice.id}')" class="text-blue-600 hover:text-blue-900">View</button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        function getClientName(clientId) {
-            if (!clientId) return 'Unknown Client';
-            const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-            const client = clients.find(c => c.id === clientId);
-            return client?.name || 'Unknown Client';
-        }
-
-        function viewInvoice(invoiceId) {
-            window.location.href = `invoices.html?id=${invoiceId}`;
-        }
-
-        function navigateToClients() {
-            window.location.href = 'clients.html';
-        }
-
-        function filterInvoices(status) {
-            window.location.href = `invoices.html?filter=${status}`;
-        }
-
-        // Load data when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(loadDashboardData, 500); // Small delay to ensure auth is loaded
-        });
-
-        // Refresh data when invoices are updated
-        document.addEventListener('invoicesUpdated', loadDashboardData);
+        window.APP_SHELL_CONFIG = {
+            active: 'dashboard',
+            headerTitle: 'Dashboard Insights',
+            headerSubtitle: 'Monitor your invoices, clients, and payments with live data and actionable alerts.',
+            headerEyebrow: 'Dashboard'
+        };
     </script>
-    
-    <!-- Include Dashboard Enhanced Script -->
-    <script src="dashboard-enhanced.js"></script>
+    <script src="app-shell.js" defer></script>
+    <script src="dashboard-enhanced.js" defer></script>
 </body>
 </html>
