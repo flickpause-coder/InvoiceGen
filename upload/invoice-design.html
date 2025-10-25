@@ -8,20 +8,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .glass-effect {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .hover-lift {
-            transition: all 0.3s ease;
-        }
-        .hover-lift:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        .form-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow: 0 18px 40px -24px rgba(15, 23, 42, 0.3);
         }
         .template-card {
             transition: all 0.3s ease;
@@ -29,660 +20,442 @@
             border: 2px solid transparent;
         }
         .template-card:hover {
-            border-color: #3b82f6;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.35);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px -20px rgba(59, 130, 246, 0.4);
         }
         .template-card.selected {
-            border-color: #3b82f6;
-            background: #eff6ff;
-        }
-        .user-menu {
-            transform: translateY(-10px);
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.2s ease;
-        }
-        .user-menu.show {
-            transform: translateY(0);
-            opacity: 1;
-            pointer-events: auto;
+            border-color: #2563eb;
+            background: rgba(59, 130, 246, 0.08);
         }
         .color-picker {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            cursor: pointer;
-            border: 2px solid #e5e7eb;
-            transition: all 0.2s ease;
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            border: 3px solid transparent;
+            transition: transform 0.2s ease, border-color 0.2s ease;
         }
         .color-picker:hover {
-            transform: scale(1.1);
-            border-color: #3b82f6;
+            transform: translateY(-3px) scale(1.02);
         }
         .color-picker.selected {
-            border-color: #3b82f6;
-            border-width: 3px;
+            border-color: rgba(15, 23, 42, 0.25);
         }
         .invoice-preview {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            min-height: 500px;
-        }
-        .form-section {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
+            background: linear-gradient(180deg, rgba(148, 163, 184, 0.1) 0%, rgba(255, 255, 255, 0.6) 100%);
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            min-height: 420px;
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <h1 class="text-2xl font-bold text-gray-900">InvoiceGen</h1>
-                    </div>
-                </div>
-                
-                <!-- Navigation Links -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="nav-link text-gray-600 hover:text-gray-900">Dashboard</a>
-                    <a href="invoices.html" class="nav-link text-gray-600 hover:text-gray-900">Invoices</a>
-                    <a href="clients.html" class="nav-link text-gray-600 hover:text-gray-900">Clients</a>
-                    <a href="invoice-design.html" class="nav-link text-blue-600 font-medium">Invoice Design</a>
-                    <a href="settings.html" class="nav-link text-gray-600 hover:text-gray-900">Settings</a>
-                </div>
-
-                <!-- User Menu -->
-                <div class="relative">
-                    <button id="user-menu-button" class="flex items-center space-x-3 text-gray-700 hover:text-gray-900 focus:outline-none">
-                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <span id="user-initials" class="text-white text-sm font-medium">TU</span>
-                        </div>
-                        <div class="hidden md:block text-left">
-                            <div id="user-name" class="text-sm font-medium">Test User</div>
-                            <div id="user-role" class="text-xs text-gray-500">Admin</div>
-                        </div>
-                        <i class="fas fa-chevron-down text-xs"></i>
-                    </button>
-
-                    <!-- Dropdown Menu -->
-                    <div id="user-menu" class="user-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                        <div class="px-4 py-2 border-b border-gray-200">
-                            <div class="text-sm font-medium text-gray-900" id="dropdown-user-name">Test User</div>
-                            <div class="text-xs text-gray-500" id="dropdown-user-email">test@invoicegen.com</div>
-                        </div>
-                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-cog mr-2"></i>Settings
-                        </a>
-                        <a href="subscription.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 bg-blue-50 text-blue-700">
-                            <i class="fas fa-credit-card mr-2"></i>Billing
-                        </a>
-                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                        </button>
-                    </div>
-                </div>
+<body>
+    <div data-page-content class="space-y-10">
+        <section class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+                <h1 class="text-3xl font-semibold text-slate-900">Invoice Design Studio</h1>
+                <p class="text-slate-500 mt-2">Customize the look and feel of your invoices</p>
             </div>
-        </div>
-    </nav>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="saveDesign()" class="px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
+                    <i class="fas fa-save mr-2"></i>Save Design
+                </button>
+                <button onclick="applyToInvoices()" class="px-5 py-3 rounded-xl border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-300 transition">
+                    <i class="fas fa-check mr-2"></i>Apply Globally
+                </button>
+                <button onclick="exportDesign()" class="px-5 py-3 rounded-xl border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-300 transition">
+                    <i class="fas fa-download mr-2"></i>Export
+                </button>
+            </div>
+        </section>
 
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Invoice Design Studio</h1>
-            <p class="text-gray-600 mt-2">Customize the look and feel of your invoices</p>
-        </div>
-
-        <!-- Design Options -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Design Controls -->
+        <section class="grid gap-8 lg:grid-cols-3">
             <div class="lg:col-span-2 space-y-8">
-                <!-- Template Selection -->
                 <div class="form-section p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Choose Template</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="template-card bg-white border border-gray-200 rounded-lg p-4 selected" onclick="selectTemplate('professional')">
-                            <div class="h-32 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg mb-4 flex items-center justify-center">
-                                <i class="fas fa-file-alt text-4xl text-blue-600"></i>
+                    <h2 class="text-lg font-semibold text-slate-900 mb-6">Choose Template</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <div class="template-card bg-white rounded-2xl p-5 selected" onclick="selectTemplate('professional')">
+                            <div class="h-32 rounded-xl bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 flex items-center justify-center mb-5">
+                                <i class="fas fa-file-alt text-3xl text-blue-600"></i>
                             </div>
-                            <h4 class="font-semibold text-gray-900 mb-2">Professional</h4>
-                            <p class="text-sm text-gray-600">Clean and modern design suitable for any business</p>
+                            <h3 class="font-semibold text-slate-900">Professional</h3>
+                            <p class="text-sm text-slate-500 mt-2">Clean and modern design suitable for any business.</p>
                         </div>
-                        <div class="template-card bg-white border border-gray-200 rounded-lg p-4" onclick="selectTemplate('creative')">
-                            <div class="h-32 bg-gradient-to-br from-purple-50 to-pink-100 rounded-lg mb-4 flex items-center justify-center">
-                                <i class="fas fa-palette text-4xl text-purple-600"></i>
+                        <div class="template-card bg-white rounded-2xl p-5" onclick="selectTemplate('creative')">
+                            <div class="h-32 rounded-xl bg-gradient-to-br from-rose-100 via-pink-100 to-amber-100 flex items-center justify-center mb-5">
+                                <i class="fas fa-palette text-3xl text-rose-500"></i>
                             </div>
-                            <h4 class="font-semibold text-gray-900 mb-2">Creative</h4>
-                            <p class="text-sm text-gray-600">Colorful and vibrant design for creative agencies</p>
+                            <h3 class="font-semibold text-slate-900">Creative</h3>
+                            <p class="text-sm text-slate-500 mt-2">Vibrant styling for agencies and creative brands.</p>
                         </div>
-                        <div class="template-card bg-white border border-gray-200 rounded-lg p-4" onclick="selectTemplate('minimal')">
-                            <div class="h-32 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                                <i class="fas fa-minus text-4xl text-gray-600"></i>
+                        <div class="template-card bg-white rounded-2xl p-5" onclick="selectTemplate('minimal')">
+                            <div class="h-32 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center mb-5">
+                                <i class="fas fa-minus text-3xl text-slate-500"></i>
                             </div>
-                            <h4 class="font-semibold text-gray-900 mb-2">Minimal</h4>
-                            <p class="text-sm text-gray-600">Simple and elegant design with minimal elements</p>
+                            <h3 class="font-semibold text-slate-900">Minimal</h3>
+                            <p class="text-sm text-slate-500 mt-2">Elegant design focused on clarity and whitespace.</p>
                         </div>
-                        <div class="template-card bg-white border border-gray-200 rounded-lg p-4" onclick="selectTemplate('corporate')">
-                            <div class="h-32 bg-gradient-to-br from-green-50 to-teal-100 rounded-lg mb-4 flex items-center justify-center">
-                                <i class="fas fa-building text-4xl text-green-600"></i>
+                        <div class="template-card bg-white rounded-2xl p-5" onclick="selectTemplate('corporate')">
+                            <div class="h-32 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center mb-5">
+                                <i class="fas fa-building text-3xl text-emerald-500"></i>
                             </div>
-                            <h4 class="font-semibold text-gray-900 mb-2">Corporate</h4>
-                            <p class="text-sm text-gray-600">Formal design perfect for corporate environments</p>
+                            <h3 class="font-semibold text-slate-900">Corporate</h3>
+                            <p class="text-sm text-slate-500 mt-2">Structured layout for enterprise reporting.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Color Scheme -->
                 <div class="form-section p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Color Scheme</h3>
-                    <div class="grid grid-cols-4 gap-4 mb-6">
-                        <div class="text-center">
-                            <div class="color-picker bg-blue-500 selected mx-auto" onclick="selectColor('blue')" id="color-blue"></div>
-                            <p class="text-xs text-gray-600 mt-2">Blue</p>
+                    <h2 class="text-lg font-semibold text-slate-900 mb-6">Brand Palette</h2>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-600 mb-3">Primary Colors</h3>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="text-center space-y-2">
+                                    <div class="color-picker bg-blue-500 selected mx-auto" onclick="selectColor('blue')" id="color-blue"></div>
+                                    <p class="text-xs text-slate-500">Blue</p>
+                                </div>
+                                <div class="text-center space-y-2">
+                                    <div class="color-picker bg-purple-500 mx-auto" onclick="selectColor('purple')" id="color-purple"></div>
+                                    <p class="text-xs text-slate-500">Purple</p>
+                                </div>
+                                <div class="text-center space-y-2">
+                                    <div class="color-picker bg-emerald-500 mx-auto" onclick="selectColor('green')" id="color-green"></div>
+                                    <p class="text-xs text-slate-500">Green</p>
+                                </div>
+                                <div class="text-center space-y-2">
+                                    <div class="color-picker bg-rose-500 mx-auto" onclick="selectColor('red')" id="color-red"></div>
+                                    <p class="text-xs text-slate-500">Rose</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <div class="color-picker bg-purple-500 mx-auto" onclick="selectColor('purple')" id="color-purple"></div>
-                            <p class="text-xs text-gray-600 mt-2">Purple</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="color-picker bg-green-500 mx-auto" onclick="selectColor('green')" id="color-green"></div>
-                            <p class="text-xs text-gray-600 mt-2">Green</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="color-picker bg-red-500 mx-auto" onclick="selectColor('red')" id="color-red"></div>
-                            <p class="text-xs text-gray-600 mt-2">Red</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-4 gap-4">
-                        <div class="text-center">
-                            <div class="color-picker bg-orange-500 mx-auto" onclick="selectColor('orange')" id="color-orange"></div>
-                            <p class="text-xs text-gray-600 mt-2">Orange</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="color-picker bg-teal-500 mx-auto" onclick="selectColor('teal')" id="color-teal"></div>
-                            <p class="text-xs text-gray-600 mt-2">Teal</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="color-picker bg-indigo-500 mx-auto" onclick="selectColor('indigo')" id="color-indigo"></div>
-                            <p class="text-xs text-gray-600 mt-2">Indigo</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="color-picker bg-gray-500 mx-auto" onclick="selectColor('gray')" id="color-gray"></div>
-                            <p class="text-xs text-gray-600 mt-2">Gray</p>
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-600 mb-3">Secondary Colors</h3>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="text-center space-y-2">
+                                    <div class="color-picker bg-orange-500 mx-auto" onclick="selectColor('orange')" id="color-orange"></div>
+                                    <p class="text-xs text-slate-500">Orange</p>
+                                </div>
+                                <div class="text-center space-y-2">
+                                    <div class="color-picker bg-teal-500 mx-auto" onclick="selectColor('teal')" id="color-teal"></div>
+                                    <p class="text-xs text-slate-500">Teal</p>
+                                </div>
+                                <div class="text-center space-y-2">
+                                    <div class="color-picker bg-indigo-500 mx-auto" onclick="selectColor('indigo')" id="color-indigo"></div>
+                                    <p class="text-xs text-slate-500">Indigo</p>
+                                </div>
+                                <div class="text-center space-y-2">
+                                    <div class="color-picker bg-slate-500 mx-auto" onclick="selectColor('gray')" id="color-gray"></div>
+                                    <p class="text-xs text-slate-500">Slate</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Typography -->
                 <div class="form-section p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Typography</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Heading Font</label>
-                            <select id="heading-font" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="generatePreview()">
+                    <h2 class="text-lg font-semibold text-slate-900 mb-6">Typography</h2>
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <label class="space-y-2 text-sm">
+                            <span class="text-slate-500">Heading Font</span>
+                            <select id="heading-font" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-blue-200" onchange="generatePreview()">
                                 <option value="serif">Serif (Traditional)</option>
                                 <option value="sans" selected>Sans-serif (Modern)</option>
                                 <option value="mono">Monospace (Technical)</option>
                             </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Body Font</label>
-                            <select id="body-font" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="generatePreview()">
+                        </label>
+                        <label class="space-y-2 text-sm">
+                            <span class="text-slate-500">Body Font</span>
+                            <select id="body-font" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-blue-200" onchange="generatePreview()">
                                 <option value="serif">Serif (Traditional)</option>
                                 <option value="sans" selected>Sans-serif (Modern)</option>
                                 <option value="mono">Monospace (Technical)</option>
                             </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Font Size</label>
-                            <select id="font-size" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="generatePreview()">
+                        </label>
+                        <label class="space-y-2 text-sm">
+                            <span class="text-slate-500">Font Size</span>
+                            <select id="font-size" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-blue-200" onchange="generatePreview()">
                                 <option value="small">Small (Compact)</option>
                                 <option value="medium" selected>Medium (Standard)</option>
                                 <option value="large">Large (Accessible)</option>
                             </select>
-                        </div>
+                        </label>
                     </div>
                 </div>
 
-                <!-- Company Information -->
                 <div class="form-section p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Company Information</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
-                            <input type="text" id="company-name" value="Your Company Name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" oninput="generatePreview()">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Logo</label>
-                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                                <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
-                                <p class="text-sm text-gray-600">Upload Logo</p>
+                    <h2 class="text-lg font-semibold text-slate-900 mb-6">Company Information</h2>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <label class="space-y-2 text-sm md:col-span-2">
+                            <span class="text-slate-500">Company Name</span>
+                            <input type="text" id="company-name" value="Your Company Name" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-blue-200" oninput="generatePreview()">
+                        </label>
+                        <div class="space-y-2 text-sm">
+                            <span class="text-slate-500">Logo</span>
+                            <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 text-center space-y-3">
+                                <i class="fas fa-cloud-upload-alt text-2xl text-slate-400"></i>
+                                <p class="text-sm text-slate-500">Upload your logo</p>
                                 <input type="file" id="logo-upload" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
-                                <button onclick="document.getElementById('logo-upload').click()" class="mt-2 text-blue-600 hover:text-blue-800 text-sm">Choose File</button>
+                                <button onclick="document.getElementById('logo-upload').click()" class="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm hover:bg-slate-700">Choose File</button>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                            <textarea id="company-address" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="123 Business Street&#10;City, State 12345&#10;Country" oninput="generatePreview()"></textarea>
-                        </div>
+                        <label class="space-y-2 text-sm">
+                            <span class="text-slate-500">Accent Style</span>
+                            <select id="accent-style" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-blue-200" onchange="generatePreview()">
+                                <option value="gradient">Gradient</option>
+                                <option value="solid" selected>Solid</option>
+                                <option value="outline">Outline</option>
+                            </select>
+                        </label>
+                        <label class="space-y-2 text-sm md:col-span-2">
+                            <span class="text-slate-500">Address</span>
+                            <textarea id="company-address" rows="3" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-blue-200" placeholder="123 Business Street&#10;City, State 12345&#10;Country" oninput="generatePreview()"></textarea>
+                        </label>
                     </div>
                 </div>
             </div>
 
-            <!-- Preview and Actions -->
-            <div class="lg:col-span-1">
-                <div class="sticky top-24 space-y-6">
-                    <!-- Preview -->
-                    <div class="form-section p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Live Preview</h3>
-                        <div id="invoice-preview" class="invoice-preview p-4">
-                            <!-- Preview will be generated here -->
-                        </div>
+            <div class="lg:col-span-1 space-y-6">
+                <div class="form-section p-6 sticky top-24">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-slate-900">Live Preview</h2>
+                        <button onclick="resetDesign()" class="text-sm text-slate-500 hover:text-slate-900">Reset</button>
                     </div>
-
-                    <!-- Action Buttons -->
-                    <div class="form-section p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Actions</h3>
-                        <div class="space-y-3">
-                            <button onclick="saveDesign()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-save mr-2"></i>Save Design
-                            </button>
-                            <button onclick="applyToInvoices()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors">
-                                <i class="fas fa-check mr-2"></i>Apply to All Invoices
-                            </button>
-                            <button onclick="exportDesign()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors">
-                                <i class="fas fa-download mr-2"></i>Export Design
-                            </button>
-                            <button onclick="resetDesign()" class="w-full bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition-colors">
-                                <i class="fas fa-undo mr-2"></i>Reset to Default
-                            </button>
-                        </div>
+                    <div id="invoice-preview" class="invoice-preview p-6 mt-6 overflow-hidden"></div>
+                    <div class="mt-6 space-y-3">
+                        <button onclick="saveDesign()" class="w-full px-4 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition">Save Design</button>
+                        <button onclick="applyToInvoices()" class="w-full px-4 py-3 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-300 transition">Apply to All Invoices</button>
+                        <button onclick="exportDesign()" class="w-full px-4 py-3 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-300 transition">Export Theme</button>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
-    <!-- Scripts -->
+    <script>
+        window.APP_SHELL_CONFIG = {
+            active: 'invoice-design',
+            headerEyebrow: 'Branding',
+            headerTitle: 'Invoice Design',
+            headerSubtitle: 'Craft stunning invoice templates that match your brand identity in minutes.'
+        };
+    </script>
+    <script src="app-shell.js" defer></script>
     <script src="auth-improved.js"></script>
     <script>
-        // Global variables
         let selectedTemplate = 'professional';
         let selectedColor = 'blue';
         let currentDesign = {};
 
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
-            initializePage();
-            loadSavedDesign();
-            generatePreview();
-        });
-
-        function initializePage() {
-            // Initialize authentication
-            if (window.ImprovedAuthService) {
-                const authService = new ImprovedAuthService();
-                if (!authService.isAuthenticated()) {
-                    authService.bypassLogin();
-                }
-                updateUserInterface(authService.getCurrentUser());
-            }
-
-            // Setup user menu
-            setupUserMenu();
-        }
-
-        function setupUserMenu() {
-            const userMenuButton = document.getElementById('user-menu-button');
-            const userMenu = document.getElementById('user-menu');
-
-            if (userMenuButton && userMenu) {
-                userMenuButton.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    userMenu.classList.toggle('show');
-                });
-
-                document.addEventListener('click', function() {
-                    userMenu.classList.remove('show');
-                });
-            }
-        }
-
-        function updateUserInterface(user) {
-            if (user) {
-                const initials = (user.firstName?.[0] || '') + (user.lastName?.[0] || '');
-                document.getElementById('user-initials').textContent = initials || 'U';
-                document.getElementById('user-name').textContent = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
-                document.getElementById('user-role').textContent = user.role || 'User';
-                document.getElementById('dropdown-user-name').textContent = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
-                document.getElementById('dropdown-user-email').textContent = user.email || '';
-            }
-        }
-
-        // Template selection
         function selectTemplate(template) {
             selectedTemplate = template;
-            
-            // Update UI
-            document.querySelectorAll('.template-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            event.target.closest('.template-card').classList.add('selected');
-            
+            document.querySelectorAll('.template-card').forEach(card => card.classList.remove('selected'));
+            const selectedCard = document.querySelector(`.template-card[onclick*="${template}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
             generatePreview();
         }
 
-        // Color selection
         function selectColor(color) {
             selectedColor = color;
-            
-            // Update UI
-            document.querySelectorAll('.color-picker').forEach(picker => {
-                picker.classList.remove('selected');
-            });
-            document.getElementById('color-' + color).classList.add('selected');
-            
+            document.querySelectorAll('.color-picker').forEach(colorEl => colorEl.classList.remove('selected'));
+            const selectedColorEl = document.getElementById(`color-${color}`);
+            if (selectedColorEl) {
+                selectedColorEl.classList.add('selected');
+            }
             generatePreview();
         }
 
-        // Logo upload
         function handleLogoUpload(event) {
             const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentDesign.logo = e.target.result;
-                    generatePreview();
-                    showAlert('Logo uploaded successfully!', 'success');
-                };
-                reader.readAsDataURL(file);
-            }
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentDesign.logo = e.target.result;
+                generatePreview();
+            };
+            reader.readAsDataURL(file);
         }
 
-        // Preview generation
-        function generatePreview() {
-            const preview = document.getElementById('invoice-preview');
-            if (!preview) return;
-            
-            const designData = collectDesignData();
-            
-            preview.innerHTML = `
-                <div class="space-y-4 bg-white border rounded-lg p-4" style="font-family: ${getFontFamily(designData.bodyFont)}; font-size: ${getFontSize(designData.fontSize)};">
-                    <!-- Header -->
-                    <div class="flex justify-between items-start border-b pb-4">
-                        <div>
-                            ${currentDesign.logo ? `<img src="${currentDesign.logo}" alt="Logo" class="h-12 mb-2">` : ''}
-                            <h1 class="text-lg font-bold ${getColorClass(designData.color)}" style="font-family: ${getFontFamily(designData.headingFont)};">
-                                ${designData.companyName}
-                            </h1>
-                            <div class="text-xs text-gray-600 whitespace-pre-line">${designData.companyAddress}</div>
-                        </div>
-                        <div class="text-right">
-                            <h2 class="text-xl font-bold ${getColorClass(designData.color)}" style="font-family: ${getFontFamily(designData.headingFont)};">
-                                INVOICE
-                            </h2>
-                            <p class="text-gray-600 text-xs">#INV-001</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Invoice Details -->
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                            <h3 class="font-semibold ${getColorClass(designData.color)} mb-1">Bill To:</h3>
-                            <div class="text-gray-700">
-                                <p>Sample Client</p>
-                                <p>123 Client Street</p>
-                                <p>City, State 12345</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="space-y-1">
-                                <div><span class="text-gray-600">Date:</span> ${new Date().toLocaleDateString()}</div>
-                                <div><span class="text-gray-600">Due:</span> ${new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString()}</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Items Table -->
-                    <div class="border-t pt-2">
-                        <table class="w-full text-xs">
-                            <thead>
-                                <tr class="border-b">
-                                    <th class="text-left py-1 ${getColorClass(designData.color)}">Description</th>
-                                    <th class="text-right py-1 ${getColorClass(designData.color)}">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="border-b">
-                                    <td class="py-1">Sample Service</td>
-                                    <td class="text-right py-1">$1,000.00</td>
-                                </tr>
-                                <tr class="border-b">
-                                    <td class="py-1">Additional Work</td>
-                                    <td class="text-right py-1">$500.00</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        
-                        <!-- Totals -->
-                        <div class="mt-2 space-y-1 text-right text-xs">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Subtotal:</span>
-                                <span>$1,500.00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Tax (10%):</span>
-                                <span>$150.00</span>
-                            </div>
-                            <div class="flex justify-between font-bold ${getColorClass(designData.color)} border-t pt-1">
-                                <span>Total:</span>
-                                <span>$1,650.00</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Footer -->
-                    <div class="border-t pt-2 text-center text-xs text-gray-600">
-                        <p>Thank you for your business!</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function collectDesignData() {
-            return {
+        function saveDesign() {
+            currentDesign = {
                 template: selectedTemplate,
                 color: selectedColor,
-                headingFont: document.getElementById('heading-font')?.value || 'sans',
-                bodyFont: document.getElementById('body-font')?.value || 'sans',
-                fontSize: document.getElementById('font-size')?.value || 'medium',
-                companyName: document.getElementById('company-name')?.value || 'Your Company Name',
-                companyAddress: document.getElementById('company-address')?.value || ''
+                headingFont: document.getElementById('heading-font').value,
+                bodyFont: document.getElementById('body-font').value,
+                fontSize: document.getElementById('font-size').value,
+                companyName: document.getElementById('company-name').value,
+                companyAddress: document.getElementById('company-address').value,
+                accentStyle: document.getElementById('accent-style').value,
+                logo: currentDesign.logo || null
             };
-        }
 
-        function getColorClass(color) {
-            const colorMap = {
-                blue: 'text-blue-600',
-                purple: 'text-purple-600',
-                green: 'text-green-600',
-                red: 'text-red-600',
-                orange: 'text-orange-600',
-                teal: 'text-teal-600',
-                indigo: 'text-indigo-600',
-                gray: 'text-gray-600'
-            };
-            return colorMap[color] || 'text-blue-600';
-        }
-
-        function getFontFamily(fontType) {
-            const fontMap = {
-                serif: 'Georgia, serif',
-                sans: 'Inter, system-ui, sans-serif',
-                mono: 'JetBrains Mono, monospace'
-            };
-            return fontMap[fontType] || fontMap.sans;
-        }
-
-        function getFontSize(size) {
-            const sizeMap = {
-                small: '0.75rem',
-                medium: '0.875rem',
-                large: '1rem'
-            };
-            return sizeMap[size] || sizeMap.medium;
-        }
-
-        // Design actions
-        function saveDesign() {
-            const designSettings = collectDesignData();
-            designSettings.logo = currentDesign.logo;
-            
-            localStorage.setItem('invoiceDesign', JSON.stringify(designSettings));
-            showAlert('Design saved successfully!', 'success');
-        }
-
-        function loadSavedDesign() {
-            const savedDesign = localStorage.getItem('invoiceDesign');
-            if (savedDesign) {
-                try {
-                    const design = JSON.parse(savedDesign);
-                    
-                    // Apply saved settings
-                    selectedTemplate = design.template || 'professional';
-                    selectedColor = design.color || 'blue';
-                    currentDesign.logo = design.logo;
-                    
-                    // Update form fields
-                    if (design.headingFont) document.getElementById('heading-font').value = design.headingFont;
-                    if (design.bodyFont) document.getElementById('body-font').value = design.bodyFont;
-                    if (design.fontSize) document.getElementById('font-size').value = design.fontSize;
-                    if (design.companyName) document.getElementById('company-name').value = design.companyName;
-                    if (design.companyAddress) document.getElementById('company-address').value = design.companyAddress;
-                    
-                    // Update UI selections
-                    updateTemplateSelection();
-                    updateColorSelection();
-                    
-                } catch (error) {
-                    console.error('Failed to load saved design:', error);
-                }
-            }
-        }
-
-        function updateTemplateSelection() {
-            document.querySelectorAll('.template-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            const templateCard = document.querySelector(`[onclick="selectTemplate('${selectedTemplate}')"]`);
-            if (templateCard) {
-                templateCard.classList.add('selected');
-            }
-        }
-
-        function updateColorSelection() {
-            document.querySelectorAll('.color-picker').forEach(picker => {
-                picker.classList.remove('selected');
-            });
-            const colorPicker = document.getElementById('color-' + selectedColor);
-            if (colorPicker) {
-                colorPicker.classList.add('selected');
-            }
+            localStorage.setItem('invoiceDesign', JSON.stringify(currentDesign));
+            alert('Design saved successfully!');
         }
 
         function applyToInvoices() {
-            const designSettings = collectDesignData();
-            designSettings.logo = currentDesign.logo;
-            
-            // Apply to all existing invoices
-            const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
-            invoices.forEach(invoice => {
-                invoice.design = designSettings;
-            });
-            localStorage.setItem('invoices', JSON.stringify(invoices));
-            
-            showAlert('Design applied to all invoices successfully!', 'success');
-        }
-
-        function resetDesign() {
-            if (confirm('Are you sure you want to reset to default design?')) {
-                // Reset template
-                selectedTemplate = 'professional';
-                selectedColor = 'blue';
-                currentDesign = {};
-                
-                // Reset form values
-                document.getElementById('heading-font').value = 'sans';
-                document.getElementById('body-font').value = 'sans';
-                document.getElementById('font-size').value = 'medium';
-                document.getElementById('company-name').value = 'Your Company Name';
-                document.getElementById('company-address').value = '';
-                
-                // Update UI
-                updateTemplateSelection();
-                updateColorSelection();
-                generatePreview();
-                
-                showAlert('Design reset to default settings', 'success');
-            }
+            saveDesign();
+            alert('Design applied to all invoices. Future invoices will use this style.');
         }
 
         function exportDesign() {
-            const designSettings = collectDesignData();
-            designSettings.logo = currentDesign.logo;
-            
-            const dataStr = JSON.stringify(designSettings, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = 'invoice-design.json';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showAlert('Design exported successfully!', 'success');
+            saveDesign();
+            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(currentDesign, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute('href', dataStr);
+            downloadAnchor.setAttribute('download', 'invoice-design.json');
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
         }
 
-        function showAlert(message, type = 'info') {
-            const alertDiv = document.createElement('div');
+        function resetDesign() {
+            localStorage.removeItem('invoiceDesign');
+            selectedTemplate = 'professional';
+            selectedColor = 'blue';
+            currentDesign = {};
+            document.getElementById('heading-font').value = 'sans';
+            document.getElementById('body-font').value = 'sans';
+            document.getElementById('font-size').value = 'medium';
+            document.getElementById('company-name').value = 'Your Company Name';
+            document.getElementById('company-address').value = '';
+            document.getElementById('accent-style').value = 'solid';
+            document.querySelectorAll('.template-card').forEach(card => card.classList.remove('selected'));
+            document.querySelector('.template-card').classList.add('selected');
+            document.querySelectorAll('.color-picker').forEach(colorEl => colorEl.classList.remove('selected'));
+            document.getElementById('color-blue').classList.add('selected');
+            generatePreview();
+        }
+
+        function generatePreview() {
+            const preview = document.getElementById('invoice-preview');
+            if (!preview) return;
+
             const colors = {
-                success: 'bg-green-100 border-green-400 text-green-700',
-                error: 'bg-red-100 border-red-400 text-red-700',
-                info: 'bg-blue-100 border-blue-400 text-blue-700'
+                blue: '#2563eb',
+                purple: '#7c3aed',
+                green: '#10b981',
+                red: '#ef4444',
+                orange: '#f97316',
+                teal: '#14b8a6',
+                indigo: '#6366f1',
+                gray: '#475569'
             };
 
-            alertDiv.className = `fixed top-4 right-4 ${colors[type]} border px-4 py-3 rounded-lg shadow-lg z-50 max-w-sm`;
-            alertDiv.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <span>${message}</span>
-                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg">&times;</button>
+            const accent = colors[selectedColor] || colors.blue;
+            const headingFont = document.getElementById('heading-font').value;
+            const bodyFont = document.getElementById('body-font').value;
+            const fontSize = document.getElementById('font-size').value;
+            const companyName = document.getElementById('company-name').value;
+            const companyAddress = document.getElementById('company-address').value;
+            const accentStyle = document.getElementById('accent-style').value;
+
+            const fontScale = {
+                small: 'text-xs',
+                medium: 'text-sm',
+                large: 'text-base'
+            };
+
+            const fontClass = fontScale[fontSize] || 'text-sm';
+
+            preview.innerHTML = `
+                <div class="space-y-6 ${fontClass}" style="font-family: ${bodyFont === 'sans' ? 'Inter, sans-serif' : bodyFont === 'serif' ? '"Cormorant Garamond", serif' : '"JetBrains Mono", monospace'};">
+                    <header class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-semibold" style="font-family: ${headingFont === 'sans' ? 'Inter, sans-serif' : headingFont === 'serif' ? '"Cormorant Garamond", serif' : '"JetBrains Mono", monospace'}; color: ${accent};">Invoice</h1>
+                            <p class="text-slate-500">#INV-2048</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-semibold text-slate-900">${companyName}</p>
+                            <p class="text-slate-500 text-xs whitespace-pre-line">${companyAddress || '123 Business Street\nCity, State 12345\nCountry'}</p>
+                        </div>
+                    </header>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-slate-400">Bill to</p>
+                            <p class="text-slate-900 font-medium mt-1">Acme Corporation</p>
+                            <p class="text-slate-500 text-xs">billing@acme.com</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-slate-400">Due Date</p>
+                            <p class="text-slate-900 font-medium mt-1">Oct 14, 2024</p>
+                            <p class="text-slate-500 text-xs">Net 15 terms</p>
+                        </div>
+                    </div>
+                    <table class="w-full text-left text-xs border border-slate-200 rounded-lg overflow-hidden">
+                        <thead style="background:${accentStyle === 'gradient' ? `linear-gradient(135deg, ${accent}, ${accent}cc)` : accent};" class="text-white">
+                            <tr>
+                                <th class="px-4 py-2">Description</th>
+                                <th class="px-4 py-2">Qty</th>
+                                <th class="px-4 py-2">Rate</th>
+                                <th class="px-4 py-2 text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white text-slate-600">
+                            <tr>
+                                <td class="px-4 py-2">UX/UI Design Sprint</td>
+                                <td class="px-4 py-2">1</td>
+                                <td class="px-4 py-2">$3,200.00</td>
+                                <td class="px-4 py-2 text-right">$3,200.00</td>
+                            </tr>
+                            <tr class="bg-slate-50">
+                                <td class="px-4 py-2">Product Strategy Workshop</td>
+                                <td class="px-4 py-2">1</td>
+                                <td class="px-4 py-2">$1,800.00</td>
+                                <td class="px-4 py-2 text-right">$1,800.00</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">Support & QA</td>
+                                <td class="px-4 py-2">10</td>
+                                <td class="px-4 py-2">$85.00</td>
+                                <td class="px-4 py-2 text-right">$850.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flex items-end justify-between">
+                        <div class="text-xs text-slate-500">
+                            <p>Payment is due within 15 days. Late payments are subject to a 1.5% monthly fee.</p>
+                        </div>
+                        <div class="w-48 space-y-2 text-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-500">Subtotal</span>
+                                <span class="text-slate-900 font-medium">$5,850.00</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-500">Tax (8%)</span>
+                                <span class="text-slate-900 font-medium">$468.00</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm font-semibold" style="color: ${accent};">
+                                <span>Total Due</span>
+                                <span>$6,318.00</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
-
-            document.body.appendChild(alertDiv);
-
-            setTimeout(() => {
-                if (alertDiv.parentElement) {
-                    alertDiv.remove();
-                }
-            }, 5000);
         }
 
-        function logout() {
-            if (window.ImprovedAuthService) {
-                const authService = new ImprovedAuthService();
-                authService.logout();
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedDesign = JSON.parse(localStorage.getItem('invoiceDesign') || 'null');
+            if (savedDesign) {
+                selectedTemplate = savedDesign.template || 'professional';
+                selectedColor = savedDesign.color || 'blue';
+                document.getElementById('heading-font').value = savedDesign.headingFont || 'sans';
+                document.getElementById('body-font').value = savedDesign.bodyFont || 'sans';
+                document.getElementById('font-size').value = savedDesign.fontSize || 'medium';
+                document.getElementById('company-name').value = savedDesign.companyName || 'Your Company Name';
+                document.getElementById('company-address').value = savedDesign.companyAddress || '';
+                document.getElementById('accent-style').value = savedDesign.accentStyle || 'solid';
+                currentDesign = savedDesign;
             }
-        }
+            selectTemplate(selectedTemplate);
+            selectColor(selectedColor);
+            generatePreview();
+        });
     </script>
 </body>
 </html>
